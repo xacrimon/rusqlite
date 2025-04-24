@@ -93,14 +93,14 @@ pub struct Context<'a> {
 
 impl Context<'_> {
     /// Returns the number of arguments to the function.
-    #[inline]
+
     #[must_use]
     pub fn len(&self) -> usize {
         self.args.len()
     }
 
     /// Returns `true` when there is no argument.
-    #[inline]
+
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.args.is_empty()
@@ -138,7 +138,7 @@ impl Context<'_> {
     ///
     /// Will panic if `idx` is greater than or equal to
     /// [`self.len()`](Context::len).
-    #[inline]
+
     #[must_use]
     pub fn get_raw(&self, idx: usize) -> ValueRef<'_> {
         let arg = self.args[idx];
@@ -147,7 +147,7 @@ impl Context<'_> {
 
     /// Returns the `idx`th argument as a `SqlFnArg`.
     /// To be used when the SQL function result is one of its arguments.
-    #[inline]
+
     #[must_use]
     pub fn get_arg(&self, idx: usize) -> SqlFnArg {
         assert!(idx < self.len());
@@ -267,7 +267,6 @@ pub struct ConnectionRef<'ctx> {
 impl Deref for ConnectionRef<'_> {
     type Target = Connection;
 
-    #[inline]
     fn deref(&self) -> &Connection {
         &self.conn
     }
@@ -285,7 +284,6 @@ pub trait SqlFnOutput {
 }
 
 impl<T: ToSql> SqlFnOutput for T {
-    #[inline]
     fn to_sql(&self) -> Result<(ToSqlOutput<'_>, SubType)> {
         ToSql::to_sql(self).map(|o| (o, None))
     }
@@ -405,7 +403,6 @@ bitflags::bitflags! {
 }
 
 impl Default for FunctionFlags {
-    #[inline]
     fn default() -> Self {
         Self::SQLITE_UTF8
     }
@@ -449,7 +446,7 @@ impl Connection {
     /// # Failure
     ///
     /// Will return Err if the function could not be attached to the connection.
-    #[inline]
+
     pub fn create_scalar_function<F, N: Name, T>(
         &self,
         fn_name: N,
@@ -472,7 +469,7 @@ impl Connection {
     /// # Failure
     ///
     /// Will return Err if the function could not be attached to the connection.
-    #[inline]
+
     pub fn create_aggregate_function<A, D, N: Name, T>(
         &self,
         fn_name: N,
@@ -496,7 +493,7 @@ impl Connection {
     /// See `https://sqlite.org/windowfunctions.html#udfwinfunc` for more
     /// information.
     #[cfg(feature = "window")]
-    #[inline]
+
     pub fn create_window_function<A, N: Name, W, T>(
         &self,
         fn_name: N,
@@ -524,7 +521,7 @@ impl Connection {
     /// # Failure
     ///
     /// Will return Err if the function could not be removed.
-    #[inline]
+
     pub fn remove_function<N: Name>(&self, fn_name: N, n_arg: c_int) -> Result<()> {
         self.db.borrow_mut().remove_function(fn_name, n_arg)
     }

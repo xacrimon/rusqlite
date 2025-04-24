@@ -15,7 +15,6 @@ use crate::{Error, Result};
 /// | Number   | INT or REAL except u64 |
 /// | _ | TEXT |
 impl ToSql for Value {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         match self {
             Self::Null => Ok(ToSqlOutput::Borrowed(ValueRef::Null)),
@@ -42,7 +41,6 @@ impl ToSql for Value {
 /// | '[0, 1]' | Array   |
 /// | '{"x": 1}' | Object  |
 impl FromSql for Value {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         match value {
             ValueRef::Text(s) => serde_json::from_slice(s), // KO for b"text"

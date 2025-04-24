@@ -13,14 +13,14 @@ pub struct Column<'stmt> {
 #[cfg(feature = "column_decltype")]
 impl Column<'_> {
     /// Returns the name of the column.
-    #[inline]
+
     #[must_use]
     pub fn name(&self) -> &str {
         self.name
     }
 
     /// Returns the type of the column (`None` for expression).
-    #[inline]
+
     #[must_use]
     pub fn decl_type(&self) -> Option<&str> {
         self.decl_type
@@ -39,28 +39,24 @@ pub struct ColumnMetadata<'stmt> {
 
 #[cfg(feature = "column_metadata")]
 impl ColumnMetadata<'_> {
-    #[inline]
     #[must_use]
     /// Returns the name of the column in the query results
     pub fn name(&self) -> &str {
         self.name
     }
 
-    #[inline]
     #[must_use]
     /// Returns the database name from which the column originates
     pub fn database_name(&self) -> Option<&str> {
         self.database_name
     }
 
-    #[inline]
     #[must_use]
     /// Returns the table name from which the column originates
     pub fn table_name(&self) -> Option<&str> {
         self.table_name
     }
 
-    #[inline]
     #[must_use]
     /// Returns the column name from which the column originates
     pub fn origin_name(&self) -> Option<&str> {
@@ -90,7 +86,7 @@ impl Statement<'_> {
     /// If associated DB schema can be altered concurrently, you should make
     /// sure that current statement has already been stepped once before
     /// calling this method.
-    #[inline]
+
     pub fn column_count(&self) -> usize {
         self.stmt.column_count()
     }
@@ -114,7 +110,7 @@ impl Statement<'_> {
     ///     Ok(())
     /// }
     /// ```
-    #[inline]
+
     pub(super) fn column_name_unwrap(&self, col: usize) -> &str {
         // Just panic if the bounds are wrong for now, we never call this
         // without checking first.
@@ -136,7 +132,7 @@ impl Statement<'_> {
     /// # Panics
     ///
     /// Panics when column name is not valid UTF-8.
-    #[inline]
+
     pub fn column_name(&self, col: usize) -> Result<&str> {
         self.stmt
             .column_name(col)
@@ -162,7 +158,7 @@ impl Statement<'_> {
     ///
     /// Will return an `Error::InvalidColumnName` when there is no column with
     /// the specified `name`.
-    #[inline]
+
     pub fn column_index(&self, name: &str) -> Result<usize> {
         let bytes = name.as_bytes();
         let n = self.column_count();

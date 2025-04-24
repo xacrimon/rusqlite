@@ -21,7 +21,7 @@ pub enum ValueRef<'a> {
 
 impl ValueRef<'_> {
     /// Returns SQLite fundamental datatype.
-    #[inline]
+
     #[must_use]
     pub fn data_type(&self) -> Type {
         match *self {
@@ -37,7 +37,7 @@ impl ValueRef<'_> {
 impl<'a> ValueRef<'a> {
     /// If `self` is case `Integer`, returns the integral value. Otherwise,
     /// returns [`Err(FromSqlError::InvalidType)`](crate::types::from_sql::FromSqlError::InvalidType).
-    #[inline]
+
     pub fn as_i64(&self) -> FromSqlResult<i64> {
         match *self {
             ValueRef::Integer(i) => Ok(i),
@@ -48,7 +48,7 @@ impl<'a> ValueRef<'a> {
     /// If `self` is case `Null` returns None.
     /// If `self` is case `Integer`, returns the integral value.
     /// Otherwise, returns [`Err(FromSqlError::InvalidType)`](crate::types::from_sql::FromSqlError::InvalidType).
-    #[inline]
+
     pub fn as_i64_or_null(&self) -> FromSqlResult<Option<i64>> {
         match *self {
             ValueRef::Null => Ok(None),
@@ -59,7 +59,7 @@ impl<'a> ValueRef<'a> {
 
     /// If `self` is case `Real`, returns the floating point value. Otherwise,
     /// returns [`Err(FromSqlError::InvalidType)`](crate::types::from_sql::FromSqlError::InvalidType).
-    #[inline]
+
     pub fn as_f64(&self) -> FromSqlResult<f64> {
         match *self {
             ValueRef::Real(f) => Ok(f),
@@ -70,7 +70,7 @@ impl<'a> ValueRef<'a> {
     /// If `self` is case `Null` returns None.
     /// If `self` is case `Real`, returns the floating point value.
     /// Otherwise, returns [`Err(FromSqlError::InvalidType)`](crate::types::from_sql::FromSqlError::InvalidType).
-    #[inline]
+
     pub fn as_f64_or_null(&self) -> FromSqlResult<Option<f64>> {
         match *self {
             ValueRef::Null => Ok(None),
@@ -81,7 +81,7 @@ impl<'a> ValueRef<'a> {
 
     /// If `self` is case `Text`, returns the string value. Otherwise, returns
     /// [`Err(FromSqlError::InvalidType)`](crate::types::from_sql::FromSqlError::InvalidType).
-    #[inline]
+
     pub fn as_str(&self) -> FromSqlResult<&'a str> {
         match *self {
             ValueRef::Text(t) => {
@@ -94,7 +94,7 @@ impl<'a> ValueRef<'a> {
     /// If `self` is case `Null` returns None.
     /// If `self` is case `Text`, returns the string value.
     /// Otherwise, returns [`Err(FromSqlError::InvalidType)`](crate::types::from_sql::FromSqlError::InvalidType).
-    #[inline]
+
     pub fn as_str_or_null(&self) -> FromSqlResult<Option<&'a str>> {
         match *self {
             ValueRef::Null => Ok(None),
@@ -107,7 +107,7 @@ impl<'a> ValueRef<'a> {
 
     /// If `self` is case `Blob`, returns the byte slice. Otherwise, returns
     /// [`Err(FromSqlError::InvalidType)`](crate::types::from_sql::FromSqlError::InvalidType).
-    #[inline]
+
     pub fn as_blob(&self) -> FromSqlResult<&'a [u8]> {
         match *self {
             ValueRef::Blob(b) => Ok(b),
@@ -118,7 +118,7 @@ impl<'a> ValueRef<'a> {
     /// If `self` is case `Null` returns None.
     /// If `self` is case `Blob`, returns the byte slice.
     /// Otherwise, returns [`Err(FromSqlError::InvalidType)`](crate::types::from_sql::FromSqlError::InvalidType).
-    #[inline]
+
     pub fn as_blob_or_null(&self) -> FromSqlResult<Option<&'a [u8]>> {
         match *self {
             ValueRef::Null => Ok(None),
@@ -129,7 +129,7 @@ impl<'a> ValueRef<'a> {
 
     /// Returns the byte slice that makes up this `ValueRef` if it's either
     /// [`ValueRef::Blob`] or [`ValueRef::Text`].
-    #[inline]
+
     pub fn as_bytes(&self) -> FromSqlResult<&'a [u8]> {
         match self {
             ValueRef::Text(s) | ValueRef::Blob(s) => Ok(s),
@@ -140,7 +140,7 @@ impl<'a> ValueRef<'a> {
     /// If `self` is case `Null` returns None.
     /// If `self` is [`ValueRef::Blob`] or [`ValueRef::Text`] returns the byte
     /// slice that makes up this value
-    #[inline]
+
     pub fn as_bytes_or_null(&self) -> FromSqlResult<Option<&'a [u8]>> {
         match *self {
             ValueRef::Null => Ok(None),
@@ -151,7 +151,6 @@ impl<'a> ValueRef<'a> {
 }
 
 impl From<ValueRef<'_>> for Value {
-    #[inline]
     #[track_caller]
     fn from(borrowed: ValueRef<'_>) -> Self {
         match borrowed {
@@ -168,21 +167,18 @@ impl From<ValueRef<'_>> for Value {
 }
 
 impl<'a> From<&'a str> for ValueRef<'a> {
-    #[inline]
     fn from(s: &str) -> ValueRef<'_> {
         ValueRef::Text(s.as_bytes())
     }
 }
 
 impl<'a> From<&'a [u8]> for ValueRef<'a> {
-    #[inline]
     fn from(s: &[u8]) -> ValueRef<'_> {
         ValueRef::Blob(s)
     }
 }
 
 impl<'a> From<&'a Value> for ValueRef<'a> {
-    #[inline]
     fn from(value: &'a Value) -> Self {
         match *value {
             Value::Null => ValueRef::Null,
@@ -198,7 +194,6 @@ impl<T> From<Option<T>> for ValueRef<'_>
 where
     T: Into<Self>,
 {
-    #[inline]
     fn from(s: Option<T>) -> Self {
         match s {
             Some(x) => x.into(),

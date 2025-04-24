@@ -391,7 +391,7 @@ pub struct IndexInfo(*mut ffi::sqlite3_index_info);
 
 impl IndexInfo {
     /// Iterate on index constraint and its associated usage.
-    #[inline]
+
     pub fn constraints_and_usages(&mut self) -> IndexConstraintAndUsageIter<'_> {
         let constraints =
             unsafe { slice::from_raw_parts((*self.0).aConstraint, (*self.0).nConstraint as usize) };
@@ -404,7 +404,7 @@ impl IndexInfo {
     }
 
     /// Record WHERE clause constraints.
-    #[inline]
+
     #[must_use]
     pub fn constraints(&self) -> IndexConstraintIter<'_> {
         let constraints =
@@ -415,7 +415,7 @@ impl IndexInfo {
     }
 
     /// Information about the ORDER BY clause.
-    #[inline]
+
     #[must_use]
     pub fn order_bys(&self) -> OrderByIter<'_> {
         let order_bys =
@@ -426,14 +426,14 @@ impl IndexInfo {
     }
 
     /// Number of terms in the ORDER BY clause
-    #[inline]
+
     #[must_use]
     pub fn num_of_order_by(&self) -> usize {
         unsafe { (*self.0).nOrderBy as usize }
     }
 
     /// Information about what parameters to pass to [`VTabCursor::filter`].
-    #[inline]
+
     pub fn constraint_usage(&mut self, constraint_idx: usize) -> IndexConstraintUsage<'_> {
         let constraint_usages = unsafe {
             slice::from_raw_parts_mut((*self.0).aConstraintUsage, (*self.0).nConstraint as usize)
@@ -442,7 +442,7 @@ impl IndexInfo {
     }
 
     /// Number used to identify the index
-    #[inline]
+
     pub fn set_idx_num(&mut self, idx_num: c_int) {
         unsafe {
             (*self.0).idxNum = idx_num;
@@ -458,7 +458,7 @@ impl IndexInfo {
     }
 
     /// True if output is already ordered
-    #[inline]
+
     pub fn set_order_by_consumed(&mut self, order_by_consumed: bool) {
         unsafe {
             (*self.0).orderByConsumed = order_by_consumed as c_int;
@@ -466,7 +466,7 @@ impl IndexInfo {
     }
 
     /// Estimated cost of using this index
-    #[inline]
+
     pub fn set_estimated_cost(&mut self, estimated_ost: f64) {
         unsafe {
             (*self.0).estimatedCost = estimated_ost;
@@ -474,7 +474,7 @@ impl IndexInfo {
     }
 
     /// Estimated number of rows returned.
-    #[inline]
+
     pub fn set_estimated_rows(&mut self, estimated_rows: i64) {
         unsafe {
             (*self.0).estimatedRows = estimated_rows;
@@ -482,13 +482,13 @@ impl IndexInfo {
     }
 
     /// Mask of `SQLITE_INDEX_SCAN_*` flags.
-    #[inline]
+
     pub fn set_idx_flags(&mut self, flags: IndexFlags) {
         unsafe { (*self.0).idxFlags = flags.bits() };
     }
 
     /// Mask of columns used by statement
-    #[inline]
+
     pub fn col_used(&self) -> u64 {
         unsafe { (*self.0).colUsed }
     }
@@ -536,14 +536,12 @@ pub struct IndexConstraintAndUsageIter<'a> {
 impl<'a> Iterator for IndexConstraintAndUsageIter<'a> {
     type Item = (IndexConstraint<'a>, IndexConstraintUsage<'a>);
 
-    #[inline]
     fn next(&mut self) -> Option<(IndexConstraint<'a>, IndexConstraintUsage<'a>)> {
         self.iter
             .next()
             .map(|raw| (IndexConstraint(raw.0), IndexConstraintUsage(raw.1)))
     }
 
-    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -557,12 +555,10 @@ pub struct IndexConstraintIter<'a> {
 impl<'a> Iterator for IndexConstraintIter<'a> {
     type Item = IndexConstraint<'a>;
 
-    #[inline]
     fn next(&mut self) -> Option<IndexConstraint<'a>> {
         self.iter.next().map(IndexConstraint)
     }
 
-    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -573,21 +569,21 @@ pub struct IndexConstraint<'a>(&'a ffi::sqlite3_index_constraint);
 
 impl IndexConstraint<'_> {
     /// Column constrained.  -1 for ROWID
-    #[inline]
+
     #[must_use]
     pub fn column(&self) -> c_int {
         self.0.iColumn
     }
 
     /// Constraint operator
-    #[inline]
+
     #[must_use]
     pub fn operator(&self) -> IndexConstraintOp {
         IndexConstraintOp::from(self.0.op)
     }
 
     /// True if this constraint is usable
-    #[inline]
+
     #[must_use]
     pub fn is_usable(&self) -> bool {
         self.0.usable != 0
@@ -601,13 +597,13 @@ pub struct IndexConstraintUsage<'a>(&'a mut ffi::sqlite3_index_constraint_usage)
 impl IndexConstraintUsage<'_> {
     /// if `argv_index` > 0, constraint is part of argv to
     /// [`VTabCursor::filter`]
-    #[inline]
+
     pub fn set_argv_index(&mut self, argv_index: c_int) {
         self.0.argvIndex = argv_index;
     }
 
     /// if `omit`, do not code a test for this constraint
-    #[inline]
+
     pub fn set_omit(&mut self, omit: bool) {
         self.0.omit = omit as std::ffi::c_uchar;
     }
@@ -621,12 +617,10 @@ pub struct OrderByIter<'a> {
 impl<'a> Iterator for OrderByIter<'a> {
     type Item = OrderBy<'a>;
 
-    #[inline]
     fn next(&mut self) -> Option<OrderBy<'a>> {
         self.iter.next().map(OrderBy)
     }
 
-    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -637,14 +631,14 @@ pub struct OrderBy<'a>(&'a ffi::sqlite3_index_orderby);
 
 impl OrderBy<'_> {
     /// Column number
-    #[inline]
+
     #[must_use]
     pub fn column(&self) -> c_int {
         self.0.iColumn
     }
 
     /// True for DESC.  False for ASC.
-    #[inline]
+
     #[must_use]
     pub fn is_order_by_desc(&self) -> bool {
         self.0.desc != 0
@@ -693,7 +687,7 @@ pub struct Context(*mut ffi::sqlite3_context);
 
 impl Context {
     /// Set current cell value
-    #[inline]
+
     pub fn set_result<T: ToSql>(&mut self, value: &T) -> Result<()> {
         let t = value.to_sql()?;
         unsafe { set_result(self.0, &[], &t) };
@@ -711,14 +705,14 @@ pub struct Values<'a> {
 
 impl Values<'_> {
     /// Returns the number of values.
-    #[inline]
+
     #[must_use]
     pub fn len(&self) -> usize {
         self.args.len()
     }
 
     /// Returns `true` if there is no value.
-    #[inline]
+
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.args.is_empty()
@@ -759,7 +753,7 @@ impl Values<'_> {
     }
 
     /// Turns `Values` into an iterator.
-    #[inline]
+
     #[must_use]
     pub fn iter(&self) -> ValueIter<'_> {
         ValueIter {
@@ -773,7 +767,6 @@ impl<'a> IntoIterator for &'a Values<'a> {
     type IntoIter = ValueIter<'a>;
     type Item = ValueRef<'a>;
 
-    #[inline]
     fn into_iter(self) -> ValueIter<'a> {
         self.iter()
     }
@@ -787,14 +780,12 @@ pub struct ValueIter<'a> {
 impl<'a> Iterator for ValueIter<'a> {
     type Item = ValueRef<'a>;
 
-    #[inline]
     fn next(&mut self) -> Option<ValueRef<'a>> {
         self.iter
             .next()
             .map(|&raw| unsafe { ValueRef::from_value(raw) })
     }
 
-    #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -805,7 +796,7 @@ impl Connection {
     ///
     /// Step 3 of [Creating New Virtual Table
     /// Implementations](https://sqlite.org/vtab.html#creating_new_virtual_table_implementations).
-    #[inline]
+
     pub fn create_module<'vtab, T: VTab<'vtab>, M: Name>(
         &self,
         module_name: M,

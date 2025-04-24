@@ -29,7 +29,7 @@ impl LoadExtensionGuard<'_> {
     ///
     /// See the safety comment on [`Connection::load_extension_enable`] for more
     /// details.
-    #[inline]
+
     pub unsafe fn new(conn: &Connection) -> Result<LoadExtensionGuard<'_>> {
         conn.load_extension_enable()
             .map(|_| LoadExtensionGuard { conn })
@@ -38,7 +38,6 @@ impl LoadExtensionGuard<'_> {
 
 #[expect(unused_must_use)]
 impl Drop for LoadExtensionGuard<'_> {
-    #[inline]
     fn drop(&mut self) {
         self.conn.load_extension_disable();
     }

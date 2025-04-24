@@ -8,7 +8,6 @@ use std::ffi::{CStr, CString, NulError};
 pub struct SmallCString(SmallVec<[u8; 16]>);
 
 impl SmallCString {
-    #[inline]
     pub fn new(s: &str) -> Result<Self, NulError> {
         if s.as_bytes().contains(&0_u8) {
             return Err(Self::fabricate_nul_error(s));
@@ -21,7 +20,6 @@ impl SmallCString {
         Ok(res)
     }
 
-    #[inline]
     pub fn as_str(&self) -> &str {
         self.debug_checks();
         // Constructor takes a &str so this is safe.
@@ -32,7 +30,7 @@ impl SmallCString {
     /// make up our `str`:
     /// - `SmallCString::new("foo").as_bytes_without_nul() == b"foo"`
     /// - `SmallCString::new("foo").as_bytes_with_nul() == b"foo\0"`
-    #[inline]
+
     pub fn as_bytes_without_nul(&self) -> &[u8] {
         self.debug_checks();
         &self.0[..self.len()]
@@ -40,13 +38,12 @@ impl SmallCString {
 
     /// Get the bytes behind this str *including* the NUL terminator. This
     /// should never return an empty slice.
-    #[inline]
+
     pub fn as_bytes_with_nul(&self) -> &[u8] {
         self.debug_checks();
         &self.0
     }
 
-    #[inline]
     #[cfg(debug_assertions)]
     fn debug_checks(&self) {
         debug_assert_ne!(self.0.len(), 0);
@@ -56,23 +53,19 @@ impl SmallCString {
         debug_assert!(std::str::from_utf8(strbytes).is_ok());
     }
 
-    #[inline]
     #[cfg(not(debug_assertions))]
     fn debug_checks(&self) {}
 
-    #[inline]
     pub fn len(&self) -> usize {
         debug_assert_ne!(self.0.len(), 0);
         self.0.len() - 1
     }
 
-    #[inline]
     #[allow(unused)] // clippy wants this function.
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
-    #[inline]
     pub fn as_cstr(&self) -> &CStr {
         let bytes = self.as_bytes_with_nul();
         debug_assert!(CStr::from_bytes_with_nul(bytes).is_ok());
@@ -86,7 +79,6 @@ impl SmallCString {
 }
 
 impl Default for SmallCString {
-    #[inline]
     fn default() -> Self {
         Self(smallvec![0])
     }
@@ -101,28 +93,24 @@ impl std::fmt::Debug for SmallCString {
 impl std::ops::Deref for SmallCString {
     type Target = CStr;
 
-    #[inline]
     fn deref(&self) -> &CStr {
         self.as_cstr()
     }
 }
 
 impl PartialEq<SmallCString> for str {
-    #[inline]
     fn eq(&self, s: &SmallCString) -> bool {
         s.as_bytes_without_nul() == self.as_bytes()
     }
 }
 
 impl PartialEq<str> for SmallCString {
-    #[inline]
     fn eq(&self, s: &str) -> bool {
         self.as_bytes_without_nul() == s.as_bytes()
     }
 }
 
 impl std::borrow::Borrow<str> for SmallCString {
-    #[inline]
     fn borrow(&self) -> &str {
         self.as_str()
     }

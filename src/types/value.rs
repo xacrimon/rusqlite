@@ -20,21 +20,18 @@ pub enum Value {
 }
 
 impl From<Null> for Value {
-    #[inline]
     fn from(_: Null) -> Self {
         Self::Null
     }
 }
 
 impl From<bool> for Value {
-    #[inline]
     fn from(i: bool) -> Self {
         Self::Integer(i as i64)
     }
 }
 
 impl From<isize> for Value {
-    #[inline]
     fn from(i: isize) -> Self {
         Self::Integer(i as i64)
     }
@@ -42,7 +39,6 @@ impl From<isize> for Value {
 
 #[cfg(feature = "i128_blob")]
 impl From<i128> for Value {
-    #[inline]
     fn from(i: i128) -> Self {
         // We store these biased (e.g. with the most significant bit flipped)
         // so that comparisons with negative numbers work properly.
@@ -52,7 +48,6 @@ impl From<i128> for Value {
 
 #[cfg(feature = "uuid")]
 impl From<uuid::Uuid> for Value {
-    #[inline]
     fn from(id: uuid::Uuid) -> Self {
         Self::Blob(id.as_bytes().to_vec())
     }
@@ -61,7 +56,7 @@ impl From<uuid::Uuid> for Value {
 macro_rules! from_i64(
     ($t:ty) => (
         impl From<$t> for Value {
-            #[inline]
+
             fn from(i: $t) -> Value {
                 Value::Integer(i64::from(i))
             }
@@ -77,35 +72,30 @@ from_i64!(u16);
 from_i64!(u32);
 
 impl From<i64> for Value {
-    #[inline]
     fn from(i: i64) -> Self {
         Self::Integer(i)
     }
 }
 
 impl From<f32> for Value {
-    #[inline]
     fn from(f: f32) -> Self {
         Self::Real(f.into())
     }
 }
 
 impl From<f64> for Value {
-    #[inline]
     fn from(f: f64) -> Self {
         Self::Real(f)
     }
 }
 
 impl From<String> for Value {
-    #[inline]
     fn from(s: String) -> Self {
         Self::Text(s)
     }
 }
 
 impl From<Vec<u8>> for Value {
-    #[inline]
     fn from(v: Vec<u8>) -> Self {
         Self::Blob(v)
     }
@@ -115,7 +105,6 @@ impl<T> From<Option<T>> for Value
 where
     T: Into<Self>,
 {
-    #[inline]
     fn from(v: Option<T>) -> Self {
         match v {
             Some(x) => x.into(),
@@ -126,7 +115,7 @@ where
 
 impl Value {
     /// Returns SQLite fundamental datatype.
-    #[inline]
+
     #[must_use]
     pub fn data_type(&self) -> Type {
         match *self {

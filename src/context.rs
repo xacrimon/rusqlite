@@ -16,7 +16,7 @@ use crate::vtab::array::{free_array, ARRAY_TYPE};
 // This function is inline despite it's size because what's in the ToSqlOutput
 // is often known to the compiler, and thus const prop/DCE can substantially
 // simplify the function.
-#[inline]
+
 pub(super) unsafe fn set_result(
     ctx: *mut sqlite3_context,
     #[allow(unused_variables)] args: &[*mut sqlite3_value],

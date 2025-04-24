@@ -214,7 +214,7 @@ impl Connection {
     /// Will return `Err` if `db`/`table`/`column` cannot be converted to a
     /// C-compatible string or if the underlying SQLite BLOB open call
     /// fails.
-    #[inline]
+
     pub fn blob_open<D: Name, N: Name>(
         &self,
         db: D,
@@ -253,7 +253,7 @@ impl Blob<'_> {
     /// # Failure
     ///
     /// Will return `Err` if the underlying SQLite BLOB reopen call fails.
-    #[inline]
+
     pub fn reopen(&mut self, row: i64) -> Result<()> {
         let rc = unsafe { ffi::sqlite3_blob_reopen(self.blob, row) };
         if rc != ffi::SQLITE_OK {
@@ -264,21 +264,21 @@ impl Blob<'_> {
     }
 
     /// Return the size in bytes of the BLOB.
-    #[inline]
+
     #[must_use]
     pub fn size(&self) -> i32 {
         unsafe { ffi::sqlite3_blob_bytes(self.blob) }
     }
 
     /// Return the current size in bytes of the BLOB.
-    #[inline]
+
     #[must_use]
     pub fn len(&self) -> usize {
         self.size().try_into().unwrap()
     }
 
     /// Return true if the BLOB is empty.
-    #[inline]
+
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.size() == 0
@@ -293,12 +293,11 @@ impl Blob<'_> {
     /// # Failure
     ///
     /// Will return `Err` if the underlying SQLite close call fails.
-    #[inline]
+
     pub fn close(mut self) -> Result<()> {
         self.close_()
     }
 
-    #[inline]
     fn close_(&mut self) -> Result<()> {
         let rc = unsafe { ffi::sqlite3_blob_close(self.blob) };
         self.blob = ptr::null_mut();
@@ -313,7 +312,7 @@ impl io::Read for Blob<'_> {
     /// # Failure
     ///
     /// Will return `Err` if the underlying SQLite read call fails.
-    #[inline]
+
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
         let max_allowed_len = (self.size() - self.pos) as usize;
         let n = min(buf.len(), max_allowed_len) as i32;
@@ -343,7 +342,7 @@ impl io::Write for Blob<'_> {
     /// # Failure
     ///
     /// Will return `Err` if the underlying SQLite write call fails.
-    #[inline]
+
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         let max_allowed_len = (self.size() - self.pos) as usize;
         let n = min(buf.len(), max_allowed_len) as i32;
@@ -360,7 +359,6 @@ impl io::Write for Blob<'_> {
             .map_err(io::Error::other)
     }
 
-    #[inline]
     fn flush(&mut self) -> io::Result<()> {
         Ok(())
     }
@@ -368,7 +366,7 @@ impl io::Write for Blob<'_> {
 
 impl io::Seek for Blob<'_> {
     /// Seek to an offset, in bytes, in BLOB.
-    #[inline]
+
     fn seek(&mut self, pos: io::SeekFrom) -> io::Result<u64> {
         let pos = match pos {
             io::SeekFrom::Start(offset) => offset as i64,
@@ -395,7 +393,6 @@ impl io::Seek for Blob<'_> {
 
 #[expect(unused_must_use)]
 impl Drop for Blob<'_> {
-    #[inline]
     fn drop(&mut self) {
         self.close_();
     }
@@ -411,7 +408,6 @@ impl Drop for Blob<'_> {
 pub struct ZeroBlob(pub i32);
 
 impl ToSql for ZeroBlob {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         let Self(length) = *self;
         Ok(ToSqlOutput::ZeroBlob(length))

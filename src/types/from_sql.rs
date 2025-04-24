@@ -89,7 +89,7 @@ pub trait FromSql: Sized {
 macro_rules! from_sql_integral(
     ($t:ident) => (
         impl FromSql for $t {
-            #[inline]
+
             fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
                 let i = i64::column_result(value)?;
                 i.try_into().map_err(|_| FromSqlError::OutOfRange(i))
@@ -98,7 +98,7 @@ macro_rules! from_sql_integral(
     );
     (non_zero $nz:ty, $z:ty) => (
         impl FromSql for $nz {
-            #[inline]
+
             fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
                 let i = <$z>::column_result(value)?;
                 <$nz>::new(i).ok_or(FromSqlError::OutOfRange(0))
@@ -134,14 +134,12 @@ from_sql_integral!(non_zero std::num::NonZeroU64, u64);
 // std::num::NonZeroU128 is not supported since u128 isn't either
 
 impl FromSql for i64 {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_i64()
     }
 }
 
 impl FromSql for f32 {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         match value {
             ValueRef::Integer(i) => Ok(i as Self),
@@ -152,7 +150,6 @@ impl FromSql for f32 {
 }
 
 impl FromSql for f64 {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         match value {
             ValueRef::Integer(i) => Ok(i as Self),
@@ -163,70 +160,60 @@ impl FromSql for f64 {
 }
 
 impl FromSql for bool {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         i64::column_result(value).map(|i| i != 0)
     }
 }
 
 impl FromSql for String {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_str().map(ToString::to_string)
     }
 }
 
 impl FromSql for Box<str> {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_str().map(Into::into)
     }
 }
 
 impl FromSql for std::rc::Rc<str> {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_str().map(Into::into)
     }
 }
 
 impl FromSql for std::sync::Arc<str> {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_str().map(Into::into)
     }
 }
 
 impl FromSql for Vec<u8> {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_blob().map(<[u8]>::to_vec)
     }
 }
 
 impl FromSql for Box<[u8]> {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_blob().map(Box::<[u8]>::from)
     }
 }
 
 impl FromSql for std::rc::Rc<[u8]> {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_blob().map(std::rc::Rc::<[u8]>::from)
     }
 }
 
 impl FromSql for std::sync::Arc<[u8]> {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_blob().map(std::sync::Arc::<[u8]>::from)
     }
 }
 
 impl<const N: usize> FromSql for [u8; N] {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         let slice = value.as_blob()?;
         slice.try_into().map_err(|_| FromSqlError::InvalidBlobSize {
@@ -238,7 +225,6 @@ impl<const N: usize> FromSql for [u8; N] {
 
 #[cfg(feature = "i128_blob")]
 impl FromSql for i128 {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         let bytes = <[u8; 16]>::column_result(value)?;
         Ok(Self::from_be_bytes(bytes) ^ (1_i128 << 127))
@@ -247,7 +233,6 @@ impl FromSql for i128 {
 
 #[cfg(feature = "uuid")]
 impl FromSql for uuid::Uuid {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         let bytes = <[u8; 16]>::column_result(value)?;
         Ok(Self::from_u128(u128::from_be_bytes(bytes)))
@@ -255,7 +240,6 @@ impl FromSql for uuid::Uuid {
 }
 
 impl<T: FromSql> FromSql for Option<T> {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         match value {
             ValueRef::Null => Ok(None),
@@ -269,14 +253,12 @@ where
     T: ToOwned,
     T::Owned: FromSql,
 {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         <T::Owned>::column_result(value).map(Cow::Owned)
     }
 }
 
 impl FromSql for Value {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         Ok(value.into())
     }

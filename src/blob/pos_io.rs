@@ -23,7 +23,7 @@ impl Blob<'_> {
     /// (from `std::os::unix`), it's always an error to perform a "short write".
     ///
     /// [fext_write_at]: https://doc.rust-lang.org/std/os/unix/fs/trait.FileExt.html#tymethod.write_at
-    #[inline]
+
     pub fn write_at(&mut self, buf: &[u8], write_start: usize) -> Result<()> {
         let len = self.len();
 
@@ -58,7 +58,7 @@ impl Blob<'_> {
     /// function from libstd:
     ///
     /// [write_all_at]: https://doc.rust-lang.org/std/os/unix/fs/trait.FileExt.html#method.write_all_at
-    #[inline]
+
     pub fn write_all_at(&mut self, buf: &[u8], write_start: usize) -> Result<()> {
         self.write_at(buf, write_start)
     }
@@ -78,7 +78,7 @@ impl Blob<'_> {
     /// position to read from, instead of using the internal position that can
     /// be manipulated by the `std::io` traits. Consequently, it does not change
     /// that value either.
-    #[inline]
+
     pub fn read_at(&self, buf: &mut [u8], read_start: usize) -> Result<usize> {
         // Safety: this is safe because `raw_read_at` never stores uninitialized
         // data into `as_uninit`.
@@ -101,7 +101,7 @@ impl Blob<'_> {
     /// position to read from, instead of using the internal position that can
     /// be manipulated by the `std::io` traits. Consequently, it does not change
     /// that value either.
-    #[inline]
+
     pub fn raw_read_at<'a>(
         &self,
         buf: &'a mut [MaybeUninit<u8>],
@@ -162,7 +162,7 @@ impl Blob<'_> {
 
     /// Equivalent to [`Blob::read_at`], but returns a `BlobSizeError` if `buf`
     /// is not fully initialized.
-    #[inline]
+
     pub fn read_at_exact(&self, buf: &mut [u8], read_start: usize) -> Result<()> {
         let n = self.read_at(buf, read_start)?;
         if n != buf.len() {
@@ -174,7 +174,7 @@ impl Blob<'_> {
 
     /// Equivalent to [`Blob::raw_read_at`], but returns a `BlobSizeError` if
     /// `buf` is not fully initialized.
-    #[inline]
+
     pub fn raw_read_at_exact<'a>(
         &self,
         buf: &'a mut [MaybeUninit<u8>],

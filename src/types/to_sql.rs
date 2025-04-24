@@ -35,7 +35,6 @@ impl<'a, T: ?Sized> From<&'a T> for ToSqlOutput<'a>
 where
     &'a T: Into<ValueRef<'a>>,
 {
-    #[inline]
     fn from(t: &'a T) -> Self {
         ToSqlOutput::Borrowed(t.into())
     }
@@ -49,13 +48,13 @@ where
 macro_rules! from_value(
     ($t:ty) => (
         impl From<$t> for ToSqlOutput<'_> {
-            #[inline]
+
             fn from(t: $t) -> Self { ToSqlOutput::Owned(t.into())}
         }
     );
     (non_zero $t:ty) => (
         impl From<$t> for ToSqlOutput<'_> {
-            #[inline]
+
             fn from(t: $t) -> Self { ToSqlOutput::Owned(t.get().into())}
         }
     )
@@ -97,7 +96,6 @@ from_value!(non_zero std::num::NonZeroI128);
 from_value!(uuid::Uuid);
 
 impl ToSql for ToSqlOutput<'_> {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         Ok(match *self {
             ToSqlOutput::Borrowed(v) => ToSqlOutput::Borrowed(v),
@@ -121,28 +119,24 @@ pub trait ToSql {
 }
 
 impl<T: ToSql + ToOwned + ?Sized> ToSql for Cow<'_, T> {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         self.as_ref().to_sql()
     }
 }
 
 impl<T: ToSql + ?Sized> ToSql for Box<T> {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         self.as_ref().to_sql()
     }
 }
 
 impl<T: ToSql + ?Sized> ToSql for std::rc::Rc<T> {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         self.as_ref().to_sql()
     }
 }
 
 impl<T: ToSql + ?Sized> ToSql for std::sync::Arc<T> {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         self.as_ref().to_sql()
     }
@@ -163,7 +157,7 @@ impl<T: ToSql + ?Sized> ToSql for std::sync::Arc<T> {
 macro_rules! to_sql_self(
     ($t:ty) => (
         impl ToSql for $t {
-            #[inline]
+
             fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
                 Ok(ToSqlOutput::from(*self))
             }
@@ -205,7 +199,7 @@ to_sql_self!(uuid::Uuid);
 macro_rules! to_sql_self_fallible(
     ($t:ty) => (
         impl ToSql for $t {
-            #[inline]
+
             fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
                 Ok(ToSqlOutput::Owned(Value::Integer(
                     i64::try_from(*self).map_err(
@@ -218,7 +212,7 @@ macro_rules! to_sql_self_fallible(
     );
     (non_zero $t:ty) => (
         impl ToSql for $t {
-            #[inline]
+
             fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
                 Ok(ToSqlOutput::Owned(Value::Integer(
                     i64::try_from(self.get()).map_err(
@@ -241,56 +235,48 @@ impl<T: ?Sized> ToSql for &'_ T
 where
     T: ToSql,
 {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         (*self).to_sql()
     }
 }
 
 impl ToSql for String {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         Ok(ToSqlOutput::from(self.as_str()))
     }
 }
 
 impl ToSql for str {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         Ok(ToSqlOutput::from(self))
     }
 }
 
 impl ToSql for Vec<u8> {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         Ok(ToSqlOutput::from(self.as_slice()))
     }
 }
 
 impl<const N: usize> ToSql for [u8; N] {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         Ok(ToSqlOutput::from(&self[..]))
     }
 }
 
 impl ToSql for [u8] {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         Ok(ToSqlOutput::from(self))
     }
 }
 
 impl ToSql for Value {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         Ok(ToSqlOutput::from(self))
     }
 }
 
 impl<T: ToSql> ToSql for Option<T> {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         match *self {
             None => Ok(ToSqlOutput::from(Null)),

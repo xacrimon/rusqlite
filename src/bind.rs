@@ -21,7 +21,6 @@ pub trait BindIndex: sealed::Sealed {
 }
 
 impl BindIndex for usize {
-    #[inline]
     fn idx(&self, _: &Statement<'_>) -> Result<usize> {
         // No validation
         Ok(*self)

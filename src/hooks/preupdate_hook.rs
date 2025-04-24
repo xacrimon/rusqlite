@@ -129,7 +129,7 @@ impl Connection {
     /// - the name of the table that is updated,
     /// - a variant of the PreUpdateCase enum which allows access to extra functions depending
     ///   on whether it's an update, delete or insert.
-    #[inline]
+
     pub fn preupdate_hook<F>(&self, hook: Option<F>)
     where
         F: FnMut(Action, &str, &str, &PreUpdateCase) + Send + 'static,
@@ -139,7 +139,6 @@ impl Connection {
 }
 
 impl InnerConnection {
-    #[inline]
     pub fn remove_preupdate_hook(&mut self) {
         self.preupdate_hook(None::<fn(Action, &str, &str, &PreUpdateCase)>);
     }

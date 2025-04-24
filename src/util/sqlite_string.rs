@@ -42,7 +42,7 @@ pub(crate) struct SqliteMallocString {
 impl SqliteMallocString {
     /// SAFETY: Caller must be certain that `m` a nul-terminated c string
     /// allocated by `sqlite3_malloc`, and that SQLite expects us to free it!
-    #[inline]
+
     pub(crate) unsafe fn from_raw_nonnull(ptr: NonNull<c_char>) -> Self {
         Self {
             ptr,
@@ -52,14 +52,14 @@ impl SqliteMallocString {
 
     /// SAFETY: Caller must be certain that `m` a nul-terminated c string
     /// allocated by `sqlite3_malloc`, and that SQLite expects us to free it!
-    #[inline]
+
     pub(crate) unsafe fn from_raw(ptr: *mut c_char) -> Option<Self> {
         NonNull::new(ptr).map(|p| Self::from_raw_nonnull(p))
     }
 
     /// Get the pointer behind `self`. After this is called, we no longer manage
     /// it.
-    #[inline]
+
     pub(crate) fn into_inner(self) -> NonNull<c_char> {
         let p = self.ptr;
         std::mem::forget(self);
@@ -68,24 +68,22 @@ impl SqliteMallocString {
 
     /// Get the pointer behind `self`. After this is called, we no longer manage
     /// it.
-    #[inline]
+
     pub(crate) fn into_raw(self) -> *mut c_char {
         self.into_inner().as_ptr()
     }
 
     /// Borrow the pointer behind `self`. We still manage it when this function
     /// returns. If you want to relinquish ownership, use `into_raw`.
-    #[inline]
+
     pub(crate) fn as_ptr(&self) -> *const c_char {
         self.ptr.as_ptr()
     }
 
-    #[inline]
     pub(crate) fn as_cstr(&self) -> &CStr {
         unsafe { CStr::from_ptr(self.as_ptr()) }
     }
 
-    #[inline]
     pub(crate) fn to_string_lossy(&self) -> std::borrow::Cow<'_, str> {
         self.as_cstr().to_string_lossy()
     }
@@ -158,7 +156,6 @@ fn make_nonnull(v: &str) -> String {
 }
 
 impl Drop for SqliteMallocString {
-    #[inline]
     fn drop(&mut self) {
         unsafe { ffi::sqlite3_free(self.ptr.as_ptr().cast()) };
     }

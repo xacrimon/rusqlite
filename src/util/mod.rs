@@ -22,7 +22,7 @@ pub enum Named<'a> {
 }
 impl std::ops::Deref for Named<'_> {
     type Target = CStr;
-    #[inline]
+
     fn deref(&self) -> &CStr {
         match self {
             Named::Small(s) => s.as_cstr(),
@@ -43,7 +43,6 @@ impl Name for &str {
     }
 }
 impl Name for &CStr {
-    #[inline]
     fn as_cstr(&self) -> Result<Named> {
         Ok(Named::C(self))
     }

@@ -34,7 +34,7 @@ impl Connection {
     ///
     /// Will return `Err` if `sql` cannot be converted to a C-compatible string
     /// or if the underlying SQLite call fails.
-    #[inline]
+
     pub fn prepare_cached(&self, sql: &str) -> Result<CachedStatement<'_>> {
         self.cache.get(self, sql)
     }
@@ -44,13 +44,13 @@ impl Connection {
     /// number of cached statements. If you need more, or know that you
     /// will not use cached statements, you
     /// can set the capacity manually using this method.
-    #[inline]
+
     pub fn set_prepared_statement_cache_capacity(&self, capacity: usize) {
         self.cache.set_capacity(capacity);
     }
 
     /// Remove/finalize all prepared statements currently in the cache.
-    #[inline]
+
     pub fn flush_prepared_statement_cache(&self) {
         self.cache.flush();
     }
@@ -75,21 +75,18 @@ pub struct CachedStatement<'conn> {
 impl<'conn> Deref for CachedStatement<'conn> {
     type Target = Statement<'conn>;
 
-    #[inline]
     fn deref(&self) -> &Statement<'conn> {
         self.stmt.as_ref().unwrap()
     }
 }
 
 impl<'conn> DerefMut for CachedStatement<'conn> {
-    #[inline]
     fn deref_mut(&mut self) -> &mut Statement<'conn> {
         self.stmt.as_mut().unwrap()
     }
 }
 
 impl Drop for CachedStatement<'_> {
-    #[inline]
     fn drop(&mut self) {
         if let Some(stmt) = self.stmt.take() {
             self.cache.cache_stmt(unsafe { stmt.into_raw() });
@@ -98,7 +95,6 @@ impl Drop for CachedStatement<'_> {
 }
 
 impl CachedStatement<'_> {
-    #[inline]
     fn new<'conn>(stmt: Statement<'conn>, cache: &'conn StatementCache) -> CachedStatement<'conn> {
         CachedStatement {
             stmt: Some(stmt),
@@ -108,7 +104,7 @@ impl CachedStatement<'_> {
 
     /// Discard the statement, preventing it from being returned to its
     /// [`Connection`]'s collection of cached statements.
-    #[inline]
+
     pub fn discard(mut self) {
         self.stmt = None;
     }
@@ -116,12 +112,11 @@ impl CachedStatement<'_> {
 
 impl StatementCache {
     /// Create a statement cache.
-    #[inline]
+
     pub fn with_capacity(capacity: usize) -> Self {
         Self(RefCell::new(LruCache::new(capacity)))
     }
 
-    #[inline]
     fn set_capacity(&self, capacity: usize) {
         self.0.borrow_mut().set_capacity(capacity);
     }
@@ -167,7 +162,6 @@ impl StatementCache {
         }
     }
 
-    #[inline]
     fn flush(&self) {
         let mut cache = self.0.borrow_mut();
         cache.clear();

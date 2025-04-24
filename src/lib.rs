@@ -351,7 +351,6 @@ pub struct Connection {
 unsafe impl Send for Connection {}
 
 impl Drop for Connection {
-    #[inline]
     fn drop(&mut self) {
         self.flush_prepared_statement_cache();
     }
@@ -410,7 +409,7 @@ impl Connection {
     ///
     /// Will return `Err` if `path` cannot be converted to a C-compatible string
     /// or if the underlying SQLite open call fails.
-    #[inline]
+
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
         let flags = OpenFlags::default();
         Self::open_with_flags(path, flags)
@@ -421,7 +420,7 @@ impl Connection {
     /// # Failure
     ///
     /// Will return `Err` if the underlying SQLite open call fails.
-    #[inline]
+
     pub fn open_in_memory() -> Result<Self> {
         let flags = OpenFlags::default();
         Self::open_in_memory_with_flags(flags)
@@ -436,7 +435,7 @@ impl Connection {
     ///
     /// Will return `Err` if `path` cannot be converted to a C-compatible
     /// string or if the underlying SQLite open call fails.
-    #[inline]
+
     pub fn open_with_flags<P: AsRef<Path>>(path: P, flags: OpenFlags) -> Result<Self> {
         let c_path = path_to_cstring(path.as_ref())?;
         InnerConnection::open_with_flags(&c_path, flags, None).map(|db| Self {
@@ -456,7 +455,7 @@ impl Connection {
     ///
     /// Will return `Err` if either `path` or `vfs` cannot be converted to a
     /// C-compatible string or if the underlying SQLite open call fails.
-    #[inline]
+
     pub fn open_with_flags_and_vfs<P: AsRef<Path>, V: Name>(
         path: P,
         flags: OpenFlags,
@@ -479,7 +478,7 @@ impl Connection {
     /// # Failure
     ///
     /// Will return `Err` if the underlying SQLite open call fails.
-    #[inline]
+
     pub fn open_in_memory_with_flags(flags: OpenFlags) -> Result<Self> {
         Self::open_with_flags(":memory:", flags)
     }
@@ -494,7 +493,7 @@ impl Connection {
     ///
     /// Will return `Err` if `vfs` cannot be converted to a C-compatible
     /// string or if the underlying SQLite open call fails.
-    #[inline]
+
     pub fn open_in_memory_with_flags_and_vfs<V: Name>(flags: OpenFlags, vfs: V) -> Result<Self> {
         Self::open_with_flags_and_vfs(":memory:", flags, vfs)
     }
@@ -591,7 +590,7 @@ impl Connection {
     ///
     /// Will return `Err` if `sql` cannot be converted to a C-compatible string
     /// or if the underlying SQLite call fails.
-    #[inline]
+
     pub fn execute<P: Params>(&self, sql: &str, params: P) -> Result<usize> {
         self.prepare(sql).and_then(|mut stmt| stmt.execute(params))
     }
@@ -603,7 +602,7 @@ impl Connection {
     /// Note that in some cases [PRAGMA
     /// database_list](https://sqlite.org/pragma.html#pragma_database_list) is
     /// likely to be more robust.
-    #[inline]
+
     pub fn path(&self) -> Option<&str> {
         unsafe {
             crate::inner_connection::db_filename(std::marker::PhantomData, self.handle(), MAIN_DB)
@@ -614,7 +613,7 @@ impl Connection {
     /// connection.
     ///
     /// This calls [`sqlite3_db_release_memory`](https://www.sqlite.org/c3ref/db_release_memory.html).
-    #[inline]
+
     pub fn release_memory(&self) -> Result<()> {
         self.db.borrow_mut().release_memory()
     }
@@ -623,7 +622,7 @@ impl Connection {
     ///
     /// Uses [sqlite3_last_insert_rowid](https://www.sqlite.org/c3ref/last_insert_rowid.html) under
     /// the hood.
-    #[inline]
+
     pub fn last_insert_rowid(&self) -> i64 {
         self.db.borrow_mut().last_insert_rowid()
     }
@@ -655,7 +654,7 @@ impl Connection {
     ///
     /// Will return `Err` if `sql` cannot be converted to a C-compatible string
     /// or if the underlying SQLite call fails.
-    #[inline]
+
     pub fn query_row<T, P, F>(&self, sql: &str, params: P, f: F) -> Result<T>
     where
         P: Params,
@@ -696,7 +695,7 @@ impl Connection {
     ///
     /// Will return `Err` if `sql` cannot be converted to a C-compatible string
     /// or if the underlying SQLite call fails.
-    #[inline]
+
     pub fn query_row_and_then<T, E, P, F>(&self, sql: &str, params: P, f: F) -> Result<T, E>
     where
         P: Params,
@@ -727,7 +726,7 @@ impl Connection {
     ///
     /// Will return `Err` if `sql` cannot be converted to a C-compatible string
     /// or if the underlying SQLite call fails.
-    #[inline]
+
     pub fn prepare(&self, sql: &str) -> Result<Statement<'_>> {
         self.prepare_with_flags(sql, PrepFlags::default())
     }
@@ -738,7 +737,7 @@ impl Connection {
     ///
     /// Will return `Err` if `sql` cannot be converted to a C-compatible string
     /// or if the underlying SQLite call fails.
-    #[inline]
+
     pub fn prepare_with_flags(&self, sql: &str, flags: PrepFlags) -> Result<Statement<'_>> {
         let (stmt, tail) = self.db.borrow_mut().prepare(self, sql, flags)?;
         if tail != 0 && !self.prepare(&sql[tail..])?.stmt.is_null() {
@@ -758,7 +757,7 @@ impl Connection {
     ///
     /// Will return `Err` if the underlying SQLite call fails.
     #[allow(clippy::result_large_err)]
-    #[inline]
+
     pub fn close(self) -> Result<(), (Self, Error)> {
         self.flush_prepared_statement_cache();
         let r = self.db.borrow_mut().close();
@@ -818,7 +817,7 @@ impl Connection {
     ///
     /// [loadext]: https://www.sqlite.org/lang_corefunc.html#load_extension
     #[cfg(feature = "load_extension")]
-    #[inline]
+
     pub unsafe fn load_extension_enable(&self) -> Result<()> {
         self.db.borrow_mut().enable_load_extension(1)
     }
@@ -831,7 +830,7 @@ impl Connection {
     ///
     /// Will return `Err` if the underlying SQLite call fails.
     #[cfg(feature = "load_extension")]
-    #[inline]
+
     pub fn load_extension_disable(&self) -> Result<()> {
         // It's always safe to turn off extension loading.
         unsafe { self.db.borrow_mut().enable_load_extension(0) }
@@ -873,7 +872,7 @@ impl Connection {
     /// sound, trusted, correctly use the SQLite APIs, and not contain any
     /// memory or thread safety errors.
     #[cfg(feature = "load_extension")]
-    #[inline]
+
     pub unsafe fn load_extension<P: AsRef<Path>, N: Name>(
         &self,
         dylib_path: P,
@@ -897,7 +896,7 @@ impl Connection {
     /// This function is unsafe because it gives you raw access
     /// to the SQLite connection, and what you do with it could impact the
     /// safety of this `Connection`.
-    #[inline]
+
     pub unsafe fn handle(&self) -> *mut ffi::sqlite3 {
         self.db.borrow().db()
     }
@@ -910,7 +909,7 @@ impl Connection {
     /// # Safety
     ///
     /// This function is unsafe because improper use may impact the Connection.
-    #[inline]
+
     pub unsafe fn from_handle(db: *mut ffi::sqlite3) -> Result<Self> {
         let db = InnerConnection::new(db, false);
         Ok(Self {
@@ -958,7 +957,7 @@ impl Connection {
     /// In particular, it should only be called on connections created
     /// and owned by the caller, e.g. as a result of calling
     /// `ffi::sqlite3_open`().
-    #[inline]
+
     pub unsafe fn from_handle_owned(db: *mut ffi::sqlite3) -> Result<Self> {
         let db = InnerConnection::new(db, true);
         Ok(Self {
@@ -970,12 +969,11 @@ impl Connection {
 
     /// Get access to a handle that can be used to interrupt long-running
     /// queries from another thread.
-    #[inline]
+
     pub fn get_interrupt_handle(&self) -> InterruptHandle {
         self.db.borrow().get_interrupt_handle()
     }
 
-    #[inline]
     fn decode_result(&self, code: c_int) -> Result<()> {
         self.db.borrow().decode_result(code)
     }
@@ -985,7 +983,7 @@ impl Connection {
     /// connection.
     ///
     /// See <https://www.sqlite.org/c3ref/changes.html>
-    #[inline]
+
     pub fn changes(&self) -> u64 {
         self.db.borrow().changes()
     }
@@ -995,20 +993,20 @@ impl Connection {
     /// connection was opened, including those executed as part of trigger programs.
     ///
     /// See <https://www.sqlite.org/c3ref/total_changes.html>
-    #[inline]
+
     pub fn total_changes(&self) -> u64 {
         self.db.borrow().total_changes()
     }
 
     /// Test for auto-commit mode.
     /// Autocommit mode is on by default.
-    #[inline]
+
     pub fn is_autocommit(&self) -> bool {
         self.db.borrow().is_autocommit()
     }
 
     /// Determine if all associated prepared statements have been reset.
-    #[inline]
+
     pub fn is_busy(&self) -> bool {
         self.db.borrow().is_busy()
     }
@@ -1195,7 +1193,6 @@ bitflags::bitflags! {
 }
 
 impl Default for OpenFlags {
-    #[inline]
     fn default() -> Self {
         // Note: update the `Connection::open` and top-level `OpenFlags` docs if
         // you change these.

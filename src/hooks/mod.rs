@@ -31,7 +31,6 @@ pub enum Action {
 }
 
 impl From<i32> for Action {
-    #[inline]
     fn from(code: i32) -> Self {
         match code {
             ffi::SQLITE_DELETE => Self::SQLITE_DELETE,
@@ -347,7 +346,7 @@ impl Connection {
     /// a transaction is committed.
     ///
     /// The callback returns `true` to rollback.
-    #[inline]
+
     pub fn commit_hook<F>(&self, hook: Option<F>)
     where
         F: FnMut() -> bool + Send + 'static,
@@ -357,7 +356,7 @@ impl Connection {
 
     /// Register a callback function to be invoked whenever
     /// a transaction is committed.
-    #[inline]
+
     pub fn rollback_hook<F>(&self, hook: Option<F>)
     where
         F: FnMut() + Send + 'static,
@@ -375,7 +374,7 @@ impl Connection {
     /// - the name of the database ("main", "temp", ...),
     /// - the name of the table that is updated,
     /// - the ROWID of the row that is updated.
-    #[inline]
+
     pub fn update_hook<F>(&self, hook: Option<F>)
     where
         F: FnMut(Action, &str, &str, i64) + Send + 'static,
@@ -432,7 +431,7 @@ impl Connection {
 
     /// Register an authorizer callback that's invoked
     /// as a statement is being prepared.
-    #[inline]
+
     pub fn authorizer<'c, F>(&self, hook: Option<F>)
     where
         F: for<'r> FnMut(AuthContext<'r>) -> Authorization + Send + 'static,
@@ -493,7 +492,6 @@ impl Wal {
 }
 
 impl InnerConnection {
-    #[inline]
     pub fn remove_hooks(&mut self) {
         self.update_hook(None::<fn(Action, &str, &str, i64)>);
         self.commit_hook(None::<fn() -> bool>);

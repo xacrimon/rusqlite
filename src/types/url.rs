@@ -5,7 +5,6 @@ use url::Url;
 
 /// Serialize `Url` to text.
 impl ToSql for Url {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         Ok(ToSqlOutput::from(self.as_str()))
     }
@@ -13,7 +12,6 @@ impl ToSql for Url {
 
 /// Deserialize text to `Url`.
 impl FromSql for Url {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         match value {
             ValueRef::Text(s) => {

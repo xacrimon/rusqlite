@@ -53,7 +53,6 @@ const LEGACY_DATE_TIME_FORMAT: &[FormatItem<'_>] = format_description!(
 
 /// `OffsetDatetime` => RFC3339 format ("YYYY-MM-DD HH:MM:SS.SSS[+-]HH:MM")
 impl ToSql for OffsetDateTime {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         let time_string = self
             .format(&OFFSET_DATE_TIME_ENCODING)
@@ -87,7 +86,6 @@ impl FromSql for OffsetDateTime {
 
 /// ISO 8601 calendar date without timezone => "YYYY-MM-DD"
 impl ToSql for Date {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         let date_str = self
             .format(&DATE_FORMAT)
@@ -98,7 +96,6 @@ impl ToSql for Date {
 
 /// "YYYY-MM-DD" => ISO 8601 calendar date without timezone.
 impl FromSql for Date {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_str().and_then(|s| {
             Self::parse(s, &DATE_FORMAT).map_err(|err| FromSqlError::Other(err.into()))
@@ -108,7 +105,6 @@ impl FromSql for Date {
 
 /// ISO 8601 time without timezone => "HH:MM:SS.SSS"
 impl ToSql for Time {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         let time_str = self
             .format(&TIME_ENCODING)
@@ -119,7 +115,6 @@ impl ToSql for Time {
 
 /// "HH:MM"/"HH:MM:SS"/"HH:MM:SS.SSS" => ISO 8601 time without timezone.
 impl FromSql for Time {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_str().and_then(|s| {
             Self::parse(s, &TIME_FORMAT).map_err(|err| FromSqlError::Other(err.into()))
@@ -129,7 +124,6 @@ impl FromSql for Time {
 
 /// ISO 8601 combined date and time without timezone => "YYYY-MM-DD HH:MM:SS.SSS"
 impl ToSql for PrimitiveDateTime {
-    #[inline]
     fn to_sql(&self) -> Result<ToSqlOutput<'_>> {
         let date_time_str = self
             .format(&PRIMITIVE_DATE_TIME_ENCODING)
@@ -146,7 +140,6 @@ impl ToSql for PrimitiveDateTime {
 /// YYYY-MM-DDTHH:MM:SS.SSS
 /// => ISO 8601 combined date and time with timezone
 impl FromSql for PrimitiveDateTime {
-    #[inline]
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         value.as_str().and_then(|s| {
             Self::parse(s, &PRIMITIVE_DATE_TIME_FORMAT)

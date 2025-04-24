@@ -41,7 +41,7 @@ unsafe impl Send for InnerConnection {}
 
 impl InnerConnection {
     #[expect(clippy::mutex_atomic, clippy::arc_with_non_send_sync)] // See unsafe impl Send / Sync for InterruptHandle
-    #[inline]
+
     pub unsafe fn new(db: *mut ffi::sqlite3, owned: bool) -> Self {
         Self {
             db,
@@ -123,12 +123,10 @@ impl InnerConnection {
         }
     }
 
-    #[inline]
     pub fn db(&self) -> *mut ffi::sqlite3 {
         self.db
     }
 
-    #[inline]
     pub fn decode_result(&self, code: c_int) -> Result<()> {
         unsafe { decode_result_raw(self.db(), code) }
     }
@@ -161,14 +159,12 @@ impl InnerConnection {
         }
     }
 
-    #[inline]
     pub fn get_interrupt_handle(&self) -> InterruptHandle {
         InterruptHandle {
             db_lock: Arc::clone(&self.interrupt_lock),
         }
     }
 
-    #[inline]
     #[cfg(feature = "load_extension")]
     pub unsafe fn enable_load_extension(&mut self, onoff: c_int) -> Result<()> {
         let r = ffi::sqlite3_enable_load_extension(self.db, onoff);
@@ -198,7 +194,6 @@ impl InnerConnection {
         }
     }
 
-    #[inline]
     pub fn last_insert_rowid(&self) -> i64 {
         unsafe { ffi::sqlite3_last_insert_rowid(self.db()) }
     }
@@ -252,7 +247,6 @@ impl InnerConnection {
         ))
     }
 
-    #[inline]
     #[cfg(not(feature = "modern_sqlite"))]
     unsafe fn prepare_(
         &self,
@@ -265,7 +259,6 @@ impl InnerConnection {
         ffi::sqlite3_prepare_v2(self.db(), z_sql, n_byte, pp_stmt, pz_tail)
     }
 
-    #[inline]
     #[cfg(feature = "modern_sqlite")]
     unsafe fn prepare_(
         &self,
@@ -278,7 +271,6 @@ impl InnerConnection {
         ffi::sqlite3_prepare_v3(self.db(), z_sql, n_byte, flags.bits(), pp_stmt, pz_tail)
     }
 
-    #[inline]
     pub fn changes(&self) -> u64 {
         #[cfg(not(feature = "modern_sqlite"))]
         unsafe {
@@ -290,7 +282,6 @@ impl InnerConnection {
         }
     }
 
-    #[inline]
     pub fn total_changes(&self) -> u64 {
         #[cfg(not(feature = "modern_sqlite"))]
         unsafe {
@@ -302,7 +293,6 @@ impl InnerConnection {
         }
     }
 
-    #[inline]
     pub fn is_autocommit(&self) -> bool {
         unsafe { get_autocommit(self.db()) }
     }
@@ -326,11 +316,11 @@ impl InnerConnection {
     }
 
     #[cfg(not(feature = "hooks"))]
-    #[inline]
+
     fn remove_hooks(&mut self) {}
 
     #[cfg(not(feature = "preupdate_hook"))]
-    #[inline]
+
     fn remove_preupdate_hook(&mut self) {}
 
     pub fn db_readonly<N: Name>(&self, db_name: N) -> Result<bool> {
@@ -370,7 +360,6 @@ impl InnerConnection {
         }
     }
 
-    #[inline]
     pub fn release_memory(&self) -> Result<()> {
         self.decode_result(unsafe { ffi::sqlite3_db_release_memory(self.db) })
     }
@@ -381,12 +370,10 @@ impl InnerConnection {
     }
 }
 
-#[inline]
 pub(crate) unsafe fn get_autocommit(ptr: *mut ffi::sqlite3) -> bool {
     ffi::sqlite3_get_autocommit(ptr) != 0
 }
 
-#[inline]
 pub(crate) unsafe fn db_filename<N: Name>(
     _: std::marker::PhantomData<&()>,
     ptr: *mut ffi::sqlite3,
@@ -403,7 +390,7 @@ pub(crate) unsafe fn db_filename<N: Name>(
 
 impl Drop for InnerConnection {
     #[expect(unused_must_use)]
-    #[inline]
+
     fn drop(&mut self) {
         self.close();
     }

@@ -203,7 +203,6 @@ pub trait Params: Sealed {
 // further thought, probably would end up causing *more* surprises, not less.
 impl Sealed for [&(dyn ToSql + Send + Sync); 0] {}
 impl Params for [&(dyn ToSql + Send + Sync); 0] {
-    #[inline]
     fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
         stmt.ensure_parameter_count(0)
     }
@@ -211,7 +210,6 @@ impl Params for [&(dyn ToSql + Send + Sync); 0] {
 
 impl Sealed for &[&dyn ToSql] {}
 impl Params for &[&dyn ToSql] {
-    #[inline]
     fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
         stmt.bind_parameters(self)
     }
@@ -219,7 +217,6 @@ impl Params for &[&dyn ToSql] {
 
 impl<S: BindIndex, T: ToSql> Sealed for &[(S, T)] {}
 impl<S: BindIndex, T: ToSql> Params for &[(S, T)] {
-    #[inline]
     fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
         stmt.bind_parameters_named(self)
     }
@@ -229,7 +226,6 @@ impl<S: BindIndex, T: ToSql> Params for &[(S, T)] {
 // by macros.
 impl Sealed for () {}
 impl Params for () {
-    #[inline]
     fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
         stmt.ensure_parameter_count(0)
     }
@@ -238,7 +234,6 @@ impl Params for () {
 // I'm pretty sure you could tweak the `single_tuple_impl` to accept this.
 impl<T: ToSql> Sealed for (T,) {}
 impl<T: ToSql> Params for (T,) {
-    #[inline]
     fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
         stmt.ensure_parameter_count(1)?;
         stmt.raw_bind_parameter(1, self.0)?;
@@ -306,7 +301,7 @@ macro_rules! impl_for_array_ref {
         }
         impl<T: ToSql> Sealed for [T; $N] {}
         impl<T: ToSql> Params for [T; $N] {
-            #[inline]
+
             fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
                 stmt.bind_parameters(&self)
             }
@@ -425,7 +420,7 @@ pub struct ParamsFromIter<I>(I);
 
 /// Constructor function for a [`ParamsFromIter`]. See its documentation for
 /// more.
-#[inline]
+
 pub fn params_from_iter<I>(iter: I) -> ParamsFromIter<I>
 where
     I: IntoIterator,
@@ -446,7 +441,6 @@ where
     I: IntoIterator,
     I::Item: ToSql,
 {
-    #[inline]
     fn __bind_in(self, stmt: &mut Statement<'_>) -> Result<()> {
         stmt.bind_parameters(self.0)
     }
